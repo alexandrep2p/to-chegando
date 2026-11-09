@@ -1,0 +1,17 @@
+# Deploy no Render (plano gratuito): um único serviço serve o site e o Socket.IO.
+# O estado das viagens fica em memória, então mantenha uma única instância.
+services:
+  - type: web
+    name: to-chegando
+    runtime: node
+    plan: free
+    # --include=dev: o build do Angular e do servidor usa dependências de desenvolvimento
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: NODE_ENV
+        value: production

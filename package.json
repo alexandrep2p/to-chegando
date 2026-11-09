@@ -1,0 +1,25 @@
+{
+  "name": "to-chegando",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Tô Chegando — mostre no mapa, ao vivo, que você está chegando",
+  "workspaces": [
+    "shared",
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev": "concurrently -k -n server,client -c magenta,cyan \"npm run dev -w server\" \"npm start -w client\"",
+    "build": "npm run build -w client && npm run build -w server",
+    "start": "node server/dist/index.js",
+    "test": "npm test -w server",
+    "typecheck": "npm run typecheck -w server",
+    "simulate": "npm run simulate -w server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  },
+  "engines": {
+    "node": "^22.22.3 || >=24.15.0"
+  }
+}

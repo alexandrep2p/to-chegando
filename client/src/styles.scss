@@ -1,0 +1,546 @@
+@import 'leaflet/dist/leaflet.css';
+
+:root {
+  --ink: #14213d;
+  --ink-2: #3a4354;
+  --muted: #5b6475;
+  --line: #e3e7ec;
+  --line-strong: #c9d0da;
+  --bg: #f6f7f4;
+  --card: #ffffff;
+  --blue: #2f5bea;
+  --blue-dark: #1e3fb8;
+  --blue-soft: #e6ecfe;
+  --orange: #f26b1d;
+  --orange-soft: #ffe9db;
+  --green: #187a4f;
+  --green-dot: #1f9d63;
+  --gray: #6b7483;
+
+  --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --shadow-card: 0 1px 3px rgb(20 33 61 / 8%);
+  --shadow-float: 0 2px 10px rgb(20 33 61 / 14%);
+  --shadow-sheet: 0 -4px 20px rgb(20 33 61 / 12%);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+}
+
+// ---- telas ----
+
+// Tela em coluna, na altura exata da janela (100dvh acompanha a barra do navegador no celular).
+.screen {
+  position: relative;
+  height: 100dvh;
+  max-width: 520px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.screen-pad {
+  padding: calc(20px + var(--safe-top)) 20px calc(24px + var(--safe-bottom));
+  gap: 20px;
+  overflow-y: auto;
+}
+
+.map-area {
+  position: relative;
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+.sheet {
+  position: relative;
+  z-index: 500;
+  flex-shrink: 0;
+  margin-top: -24px;
+  background: var(--bg);
+  border-radius: 24px 24px 0 0;
+  padding: 10px 20px calc(24px + var(--safe-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: var(--shadow-sheet);
+}
+
+.sheet-handle {
+  width: 40px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--line-strong);
+  align-self: center;
+}
+
+// Controles flutuando sobre o mapa.
+.over-map {
+  position: absolute;
+  z-index: 500;
+}
+
+.top-bar {
+  left: 16px;
+  right: 16px;
+  top: calc(16px + var(--safe-top));
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+// ---- texto ----
+
+.display {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  line-height: 1.1;
+}
+
+.eyebrow {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.caps {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.small {
+  font-size: 14px;
+}
+
+.num {
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+// ---- componentes ----
+
+.btn {
+  height: 56px;
+  flex-shrink: 0;
+  border: 0;
+  border-radius: 16px;
+  padding: 0 20px;
+  background: var(--blue);
+  color: #fff;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.btn.dark {
+  background: var(--ink);
+}
+
+.btn.outline {
+  background: var(--card);
+  color: var(--ink);
+  border: 1.5px solid var(--line-strong);
+}
+
+.btn.small {
+  height: 48px;
+  border-radius: 14px;
+  font-size: 15px;
+}
+
+.btn-text {
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  color: var(--blue);
+  font-weight: 600;
+  font-size: 15px;
+  padding: 0 8px;
+}
+
+.icon-btn {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-btn.float {
+  width: 48px;
+  height: 48px;
+  background: var(--card);
+  color: var(--ink);
+  box-shadow: var(--shadow-float);
+}
+
+.icon-btn.bordered {
+  background: var(--card);
+  color: var(--ink);
+  border: 1.5px solid var(--line-strong);
+}
+
+.card {
+  background: var(--card);
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+}
+
+.grow {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.pill {
+  height: 48px;
+  box-sizing: border-box;
+  background: var(--card);
+  border-radius: 999px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  box-shadow: var(--shadow-float);
+  min-width: 0;
+}
+
+.pill .ellipsis,
+.ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.live-dot {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--green-dot);
+  box-shadow: 0 0 0 4px rgb(31 157 99 / 20%);
+}
+
+.live-dot.off {
+  background: var(--gray);
+  box-shadow: 0 0 0 4px rgb(107 116 131 / 20%);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.field input,
+.input {
+  height: 54px;
+  box-sizing: border-box;
+  width: 100%;
+  border: 1.5px solid var(--line-strong);
+  border-radius: 14px;
+  background: var(--card);
+  padding: 0 16px;
+  font-size: 17px;
+}
+
+.badge {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--orange);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.badge.sm {
+  width: 26px;
+  height: 26px;
+  font-size: 13px;
+}
+
+.badge.dest {
+  border-radius: 10px;
+  background: var(--ink);
+  color: #fff;
+}
+
+.badge.sm.dest {
+  border-radius: 8px;
+}
+
+.badge.done {
+  background: var(--gray);
+  color: #fff;
+}
+
+.avatar {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--orange-soft);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.notice.info {
+  background: var(--blue-soft);
+}
+
+.notice.warn {
+  background: var(--orange-soft);
+  border: 1.5px solid var(--orange);
+  box-shadow: var(--shadow-float);
+}
+
+.notice strong {
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(110px + var(--safe-bottom));
+  transform: translateX(-50%);
+  z-index: 2000;
+  max-width: min(360px, calc(100vw - 32px));
+  background: var(--ink);
+  color: #fff;
+  border-radius: 14px;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 6px 20px rgb(20 33 61 / 30%);
+}
+
+// ---- marcadores do mapa (o Leaflet cria esses elementos fora dos componentes) ----
+
+.mk-wrap {
+  overflow: visible;
+}
+
+.mk {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgb(20 33 61 / 30%);
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.mk-driver {
+  width: 40px;
+  height: 40px;
+  border-width: 4px;
+  background: var(--blue);
+  box-shadow: 0 0 0 10px rgb(47 91 234 / 20%);
+}
+
+.mk-driver svg {
+  transition: transform 0.6s;
+}
+
+.mk-driver.stale {
+  background: var(--gray);
+  box-shadow: 0 0 0 2px var(--gray);
+}
+
+.mk-stop {
+  width: 34px;
+  height: 34px;
+  background: var(--orange);
+  font-size: 15px;
+}
+
+.mk-stop.mine {
+  width: 38px;
+  height: 38px;
+  font-size: 16px;
+  box-shadow:
+    0 0 0 12px rgb(242 107 29 / 22%),
+    0 2px 6px rgb(20 33 61 / 30%);
+}
+
+.mk-stop.done,
+.mk-dest.done {
+  background: var(--gray);
+}
+
+.mk-dest {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: var(--ink);
+}
+
+.mk-person {
+  width: 26px;
+  height: 26px;
+  border-width: 2px;
+  background: var(--orange-soft);
+  font-size: 12px;
+}
+
+.mk-me {
+  width: 16px;
+  height: 16px;
+  background: var(--blue);
+}
+
+.mk-label {
+  position: absolute;
+  top: 24px;
+  transform: translateX(-50%);
+  background: #fff;
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 1px 4px rgb(20 33 61 / 20%);
+}
+
+.mk-label.mine {
+  background: var(--ink);
+  color: #fff;
+}
+
+.leaflet-container {
+  font-family: var(--font-body);
+  background: #e8ecef;
+}
+
+.leaflet-control-attribution {
+  font-size: 10px;
+  background: rgb(255 255 255 / 70%) !important;
+}
+
+// Durante o arrasto (CDK drag-drop), a linha arrastada flutua fora da lista.
+.cdk-drag-preview {
+  box-shadow: 0 8px 24px rgb(20 33 61 / 25%);
+  border-radius: 16px;
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.3;
+}
+
+.cdk-drop-list-dragging .cdk-drag:not(.cdk-drag-placeholder) {
+  transition: transform 200ms;
+}

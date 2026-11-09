@@ -1,0 +1,16 @@
+{
+  "name": "Tô Chegando",
+  "short_name": "Tô Chegando",
+  "description": "Mostre no mapa, ao vivo, que você está chegando.",
+  "lang": "pt-BR",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F6F7F4",
+  "theme_color": "#2F5BEA",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}

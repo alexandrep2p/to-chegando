@@ -1,0 +1,27 @@
+{
+  "name": "@tc/server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "esbuild src/index.ts --bundle --platform=node --format=esm --target=node22 --outfile=dist/index.js --external:express --external:socket.io",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "simulate": "tsx scripts/simulate.ts"
+  },
+  "dependencies": {
+    "@tc/shared": "*",
+    "express": "^5.1.0",
+    "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^22.15.0",
+    "esbuild": "^0.25.0",
+    "socket.io-client": "^4.8.1",
+    "tsx": "^4.20.0",
+    "typescript": "~6.0.2",
+    "vitest": "^5.0.0"
+  }
+}
