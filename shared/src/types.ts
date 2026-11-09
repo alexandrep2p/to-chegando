@@ -121,7 +121,7 @@ export type TripSnapshot = {
 };
 
 export interface ClientToServer {
-  'trip:create': (p: { name: string }, ack: (r: Ack<SessionAck>) => void) => void;
+  'trip:create': (p: { name: string; bots?: number }, ack: (r: Ack<SessionAck>) => void) => void;
   'trip:join': (
     p: { code: string; name: string; role: 'passenger' | 'viewer' },
     ack: (r: Ack<SessionAck>) => void,

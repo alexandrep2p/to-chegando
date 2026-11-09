@@ -428,9 +428,9 @@ export class TripStore {
   }
 
   /** Cria a viagem. Devolve o código, ou null se falhar. */
-  async create(name: string): Promise<string | null> {
+  async create(name: string, bots = 0): Promise<string | null> {
     this.reset();
-    const r = await this.sock.call<SessionAck>('trip:create', { name });
+    const r = await this.sock.call<SessionAck>('trip:create', { name, bots });
     if (!r.ok) {
       this.say(ERRORS[r.error] ?? ERRORS.INVALID_REQUEST!);
       return null;

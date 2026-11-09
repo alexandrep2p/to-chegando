@@ -135,6 +135,14 @@ export class Trip {
     return { memberId: member.id, sessionId };
   }
 
+  /** Passageiro de mentira com ponto já confirmado, para testar sem outros aparelhos. */
+  addBot(name: string, point: LatLng): Member {
+    this.assertActive();
+    const { member } = this.addMember(name, 'passenger');
+    this.setPickup(member.id, point, 'fixed', true);
+    return member;
+  }
+
   memberBySession(sessionId: unknown): Member | null {
     if (typeof sessionId !== 'string' || !sessionId) return null;
     const hash = hashSession(sessionId);

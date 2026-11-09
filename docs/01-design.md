@@ -64,6 +64,8 @@ Chegada: uma parada é concluída de três formas:
 - o carro se aproximou do ponto (entrou a menos de 50 m) e depois **se afastou mais de 50 m** dele, caso de quem parou um pouco antes ou passou direto;
 - o motorista toca em **Cheguei**.
 
+Se o pino estiver longe de qualquer rua (dentro de um parque, por exemplo), vale também chegar ao ponto da rua mais próximo dele.
+
 Nos três casos a pessoa daquela parada é avisada (ver 3.7). Concluída a parada, a seguinte vira a próxima. Depois da última, a viagem termina.
 
 No menu (⋯): reordenar paradas, compartilhar o link de novo, remover alguém, encerrar viagem.

@@ -12,6 +12,8 @@ import {
   untracked,
 } from '@angular/core';
 import * as L from 'leaflet';
+import { maplibreGL } from '@maplibre/maplibre-gl-leaflet';
+import { setWorkerUrl } from 'maplibre-gl';
 import type { LatLng } from '@tc/shared';
 
 export interface MapMarker {
@@ -30,6 +32,12 @@ export interface MapMarker {
   stale?: boolean;
   heading?: number | null;
 }
+
+const MAP_STYLE = 'https://tiles.openfreemap.org/styles/positron';
+
+// O MapLibre desenha o mapa num worker. O build não empacota esse arquivo sozinho,
+// então ele é copiado como asset (angular.json) e apontado aqui.
+setWorkerUrl('/maplibre/maplibre-gl-worker.mjs');
 
 const FLAG =
   '<svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 21V4"/><path d="M6 4h11l-2.5 4 2.5 4H6"/></svg>';
@@ -160,12 +168,15 @@ export class MapComponent implements OnDestroy {
       zoomControl: false,
       attributionControl: false,
       zoomSnap: 0.25,
+      maxZoom: 19,
     });
     L.control.attribution({ prefix: false, position: 'topright' }).addTo(map);
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    }).addTo(map);
+    // OpenFreeMap Positron: mapa vetorial claro, com poucos rótulos e sem ícones de comércio.
+    // Gratuito e sem chave de API. O Leaflet continua cuidando de marcadores e câmera.
+    maplibreGL({ style: MAP_STYLE, attributionControl: false }).addTo(map);
+    map.attributionControl.addAttribution(
+      '<a href="https://openfreemap.org">OpenFreeMap</a> © <a href="https://www.openmaptiles.org/">OpenMapTiles</a> © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    );
     // Brasil inteiro até chegar o primeiro ponto.
     map.setView([-14.2, -51.9], 4);
     map.on('dragstart', () => this.userMoved.set(true));

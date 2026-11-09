@@ -9,8 +9,8 @@ Mesma base do Mentira!, para reaproveitar o que já funciona no Render.
 | Camada | Escolha |
 |---|---|
 | Servidor | Node 24, Express 5, Socket.IO 4.8, TypeScript. Estado em memória, sem banco. |
-| Cliente | Angular 22 (standalone, signals, zoneless) + Angular Material 22 (CDK drag-drop para reordenar). PWA instalável (manifest). |
-| Mapa | Leaflet 1.9 com tiles raster do OpenStreetMap. Sem chave de API. |
+| Cliente | Angular 22 (standalone, signals, zoneless) + Angular CDK (drag-drop para reordenar). Visual próprio, sem Angular Material. PWA instalável (manifest). |
+| Mapa | Leaflet 1.9 (marcadores, rota, câmera) com fundo vetorial MapLibre GL no estilo Positron do OpenFreeMap: claro, com poucos rótulos. Gratuito, sem chave de API. |
 | Rotas e ETA | OSRM (servidor público `router.project-osrm.org`), chamado **pelo servidor**. |
 | Endereços | Nominatim (OpenStreetMap), chamado **pelo servidor**: geocodificação reversa e busca. |
 | Monorepo | npm workspaces: `shared/`, `server/`, `client/`. |
@@ -143,6 +143,7 @@ Expiração: viagem em `lobby` ou `driving` sem nenhuma mensagem do motorista po
   - `d ≤ APPROACH_RADIUS_M` (50 m) → marca `stop.approached = true`;
   - `stop.approached` e `d > DEPART_RADIUS_M` (50 m) → chegou (aproximou e se afastou).
   - Se o ponto da parada mudar (pino ajustado ou modo `follow`), `approached` volta a `false`.
+- **Pino longe da rua**: quando o roteador encaixa a parada numa rua a mais de 20 m do pino (pino dentro de parque ou condomínio), esse ponto da rua vira o `stop.access`, e as três regras acima usam a menor das duas distâncias (até o pino ou até o acesso). De carro não dá para chegar mais perto que isso.
 - **Chegada manual**: `stop:arrive`. Vale para qualquer parada pendente, não só a próxima.
 - Nos dois casos: `status: 'arrived'`, `arrivedBy: 'auto' | 'manual'`, e o servidor emite `stop:arrived` (§8.3).
 - **Ponto "seguir GPS"**: a parada acompanha o `lastFix` do passageiro; só dispara recálculo se andou ≥ 50 m desde a última rota.
@@ -314,7 +315,7 @@ Coordenadas: `lat` em [−90, 90], `lng` em [−180, 180], números finitos. Tex
 Um componente `tc-map` encapsula o Leaflet: recebe marcadores, rota e rastro por inputs e não expõe a API do Leaflet. O marcador do motorista é animado entre posições (interpolação linear de 1 s) para não "pular". Modo de câmera: `follow` (segue o motorista, padrão para ele), `fit` (enquadra motorista + minha parada, padrão para o passageiro) e `free` (após o usuário arrastar; o botão de centralizar volta ao padrão).
 
 ### 11.5 Tema
-Tokens do design (§6 de 01-design.md) como custom properties CSS. Material só fornece comportamento (drag-drop, bottom sheet, snackbar); o visual é próprio. Somente tema claro na v1.
+Tokens do design (§6 de 01-design.md) como custom properties CSS. O CDK só fornece o arrastar; folhas, avisos e confirmações são do próprio app (nada de `confirm()` do navegador). Somente tema claro na v1.
 
 ### 11.6 PWA
 `manifest.webmanifest` (nome, ícones, `display: standalone`, cor do tema) para "Adicionar à tela inicial". Sem service worker na v1: o app não funciona offline e não há o que cachear de útil.
@@ -334,7 +335,10 @@ Tokens do design (§6 de 01-design.md) como custom properties CSS. Material só 
 | `npm run simulate` | Viagem completa com 3 clientes Socket.IO e OSRM simulado |
 | `npm run build` / `npm start` | Build de produção / sobe o servidor servindo o cliente |
 
-Modo de teste sem sair de casa: `/v/:code?sim=1` faz o motorista percorrer a rota calculada a 40 km/h em vez de usar o GPS. Não aparece na interface.
+Modos de teste, pela URL da página inicial (não aparecem na interface e valem até fechar a aba):
+
+- `?sim=1` ou `?sim=lat,lng`: troca o GPS por uma posição simulada; em trajeto, o motorista percorre a rota calculada. `&simspeed=N` define a velocidade em km/h (padrão 40).
+- `?bots=N` (até 8): a viagem é criada com N passageiros de mentira. Eles entram um a um assim que chega a primeira posição do motorista, em pontos sorteados de 500 m a 2,3 km em volta dele, já com o ponto confirmado. São membros comuns no servidor (`Trip.addBot`), sem sessão que alguém possa usar.
 
 ## 14. Deploy (Render)
 

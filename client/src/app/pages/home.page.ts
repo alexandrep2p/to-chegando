@@ -1,10 +1,24 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { NAME_MAX } from '@tc/shared';
+import { MAX_BOTS, NAME_MAX } from '@tc/shared';
 import { sessions } from '../core/session';
 import { TripStore } from '../core/trip.store';
 import { Icon } from '../shared/icon';
+
+/**
+ * Modo de teste: `/?bots=N` cria a viagem já com N passageiros de mentira (até 8).
+ * Não aparece na interface. Fica no sessionStorage para valer até fechar a aba.
+ */
+function readBots(): number {
+  try {
+    const raw = new URLSearchParams(location.search).get('bots');
+    if (raw !== null) sessionStorage.setItem('tc:bots', raw);
+    return Math.max(0, Math.min(MAX_BOTS, Math.floor(Number(sessionStorage.getItem('tc:bots')) || 0)));
+  } catch {
+    return 0;
+  }
+}
 
 @Component({
   selector: 'tc-home',
@@ -160,6 +174,7 @@ export class HomePage {
   protected readonly max = NAME_MAX;
   protected readonly name = signal(sessions.lastName());
   protected readonly busy = signal(false);
+  private readonly bots = readBots();
 
   constructor() {
     // Viagem em aberto neste aparelho: volta direto para ela.
@@ -171,7 +186,7 @@ export class HomePage {
     const name = this.name().trim();
     if (!name || this.busy()) return;
     this.busy.set(true);
-    const code = await this.store.create(name);
+    const code = await this.store.create(name, this.bots);
     this.busy.set(false);
     if (code) void this.router.navigate(['/v', code]);
   }

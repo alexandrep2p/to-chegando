@@ -5,7 +5,9 @@
     "ng": "ng",
     "start": "ng serve --host 0.0.0.0",
     "build": "ng build",
-    "watch": "ng build --watch --configuration development"
+    "watch": "ng build --watch --configuration development",
+    "prestart": "node scripts/copy-map-worker.mjs",
+    "prebuild": "node scripts/copy-map-worker.mjs"
   },
   "private": true,
   "packageManager": "npm@11.19.0",
@@ -17,8 +19,10 @@
     "@angular/forms": "^22.2.0",
     "@angular/platform-browser": "^22.2.0",
     "@angular/router": "^22.2.0",
+    "@maplibre/maplibre-gl-leaflet": "^0.1.4",
     "@tc/shared": "*",
     "leaflet": "^1.9.4",
+    "maplibre-gl": "^6.17.0",
     "qrcode": "^1.5.4",
     "rxjs": "~7.8.0",
     "socket.io-client": "^4.8.1",

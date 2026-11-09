@@ -34,7 +34,9 @@
             ],
             "allowedCommonJsDependencies": [
               "qrcode",
-              "leaflet"
+              "leaflet",
+              "@maplibre/maplibre-gl-leaflet",
+              "maplibre-gl"
             ]
           },
           "configurations": {

@@ -1,5 +1,6 @@
 import type { Server, Socket } from 'socket.io';
 import {
+  MAX_BOTS,
   SEARCH_MAX,
   TRIP_MAX_TTL_MS,
   isValidPoint,
@@ -25,12 +26,40 @@ export interface Deps {
 }
 
 const STALE_CHECK_MS = 10_000;
+const BOT_NAMES = ['Larissa', 'Mãe', 'Bia', 'Caio', 'Duda', 'Enzo', 'Fernanda', 'Guto'];
+const BOT_JOIN_EVERY_MS = 1200;
+
+/** Ponto a `meters` de `from`, na direção `bearingRad`. */
+function offset(from: { lat: number; lng: number }, meters: number, bearingRad: number) {
+  const lat = from.lat + (meters * Math.cos(bearingRad)) / 111_195;
+  const lng =
+    from.lng + (meters * Math.sin(bearingRad)) / (111_195 * Math.cos((from.lat * Math.PI) / 180));
+  return { lat, lng };
+}
 const SWEEP_MS = 60_000;
 
 export function registerHandlers(io: IO, deps: Deps) {
   const now = deps.now ?? Date.now;
   const store = new TripStore();
   const planner = new RoutePlanner(deps.router, (trip) => emitState(trip), now);
+  /** Modo de teste: quantos bots cada viagem ainda espera (entram na 1ª posição do motorista). */
+  const botsWanted = new Map<string, number>();
+
+  /** Os bots entram um a um, espalhados de 500 m a 2,3 km em volta do motorista. */
+  function spawnBots(trip: Trip, around: { lat: number; lng: number }) {
+    const count = botsWanted.get(trip.code) ?? 0;
+    botsWanted.delete(trip.code);
+    for (let i = 0; i < count; i++) {
+      setTimeout(() => {
+        if (trip.phase === 'ended') return;
+        const point = offset(around, 500 + Math.random() * 1800, Math.random() * 2 * Math.PI);
+        trip.addBot(BOT_NAMES[i % BOT_NAMES.length], point);
+        planner.request(trip);
+        emitState(trip);
+        fillAddress(trip, point);
+      }, i * BOT_JOIN_EVERY_MS);
+    }
+  }
 
   const socketsOf = (code: string): Sock[] =>
     [...io.sockets.sockets.values()].filter((s) => s.data.code === code);
@@ -114,6 +143,8 @@ export function registerHandlers(io: IO, deps: Deps) {
     socket.on('trip:create', (p, ack) =>
       reply(ack, () => {
         const { trip, memberId, sessionId } = store.create(p?.name, now());
+        const bots = Math.min(MAX_BOTS, Math.max(0, Math.floor(Number(p?.bots) || 0)));
+        if (bots > 0) botsWanted.set(trip.code, bots);
         bind(socket, trip, trip.driver);
         emitState(trip);
         return { code: trip.code, memberId, sessionId };
@@ -186,7 +217,10 @@ export function registerHandlers(io: IO, deps: Deps) {
         } else if (wasStale) {
           emitState(trip);
         }
-        if (member.id === trip.driverId) planner.onDriverMove(trip);
+        if (member.id === trip.driverId) {
+          if (botsWanted.has(trip.code)) spawnBots(trip, res.fix);
+          planner.onDriverMove(trip);
+        }
         return {};
       }),
     );

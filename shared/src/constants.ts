@@ -2,6 +2,8 @@ export const NAME_MAX = 20;
 export const CODE_LENGTH = 6;
 export const CODE_ALPHABET = '23456789ABCDEFGHJKMNPQRSTUVWXYZ';
 export const SEARCH_MAX = 100;
+/** Máximo de passageiros de mentira no modo de teste (?bots=N). */
+export const MAX_BOTS = 8;
 export const LABEL_MAX = 80;
 
 /** O servidor descarta posições do mesmo membro mais frequentes que isto. */
